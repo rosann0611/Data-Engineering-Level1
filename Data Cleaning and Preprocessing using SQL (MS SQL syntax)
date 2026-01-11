@@ -1,0 +1,49 @@
+-- To check the csv data imported
+--select pan_numbers from [dbo].[PAN Number Validation Dataset];
+
+1. Identifying and Handling missing data
+select pan_numbers from [dbo].[PAN Number Validation Dataset] where pan_numbers is NOT NULL;
+
+2. Check for duplicates
+select pan_numbers, count(1) AS count from [dbo].[PAN Number Validation Dataset] group by pan_numbers having count(1) > 2;
+
+3. Handle leading/trailing spaces
+select * from [dbo].[PAN Number Validation Dataset]  where pan_numbers <> trim(pan_numbers);
+
+4. Check letter case
+SELECT * FROM [dbo].[PAN Number Validation Dataset] WHERE pan_numbers COLLATE Latin1_General_CS_AS <> UPPER(pan_numbers);
+
+---------------------------------------------
+--Final Query for Data Cleaning
+
+SELECT DISTINCT UPPER(TRIM(pan_numbers)) AS pan_number
+FROM [dbo].[PAN Number Validation Dataset]
+WHERE pan_numbers IS NOT NULL;
+
+---------------------------------------------
+
+-- Function to check if adjacent characters are repetative. 
+-- Returns true if adjacent characters are adjacent else returns false
+
+CREATE OR ALTER FUNCTION dbo.fn_check_str (@p_str nvarchar(MAX))
+RETURNS BIT
+AS
+BEGIN
+    DECLARE @i INT = 1;
+	DECLARE @len INT = LEN(@p_str);
+    -- WHILE Loop Simulation
+    WHILE @i < @len
+    BEGIN
+        IF SUBSTRING(@p_str ,@i ,1) = SUBSTRING(@p_str ,@i + 1 ,1)  -- IF statement inside a while loop
+		  RETURN 1;
+        SET @i = @i + 1;  -- Increment the counter
+    END
+    RETURN 0;
+END;
+GO
+
+-- Calling the function
+SELECT dbo.fn_check_str ('DEERG');
+SELECT dbo.fn_check_str ('DERGH');
+
+
