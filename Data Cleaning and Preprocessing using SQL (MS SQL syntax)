@@ -60,7 +60,7 @@ BEGIN
     -- WHILE Loop Simulation
     WHILE @i < @len
     BEGIN
-        IF ASCII(SUBSTRING(@p_str ,@i + 1, 1)) - ASCII(SUBSTRING(@p_str ,@i ,1)) <> 1  -- IF statement inside a while loop
+        IF ASCII(SUBSTRING(@p_str ,@i + 1, 1)) - ASCII(SUBSTRING(@p_str ,@i ,1)) <> 1  -- <> = NOT EQUAL TO
 		  RETURN 0;
         SET @i = @i + 1;  -- Increment the counter
     END
