@@ -20,7 +20,7 @@ SELECT DISTINCT UPPER(TRIM(pan_numbers)) AS pan_number
 FROM [dbo].[PAN Number Validation Dataset]
 WHERE pan_numbers IS NOT NULL;
 
----------------------------------------------
+------------- FUNCTIONS -----------------------
 
 -- Function to check if adjacent characters are repetative. 
 -- Returns true if adjacent characters are adjacent else returns false
@@ -42,8 +42,33 @@ BEGIN
 END;
 GO
 
--- Calling the function
+-- Calling the fn_check_str function
 SELECT dbo.fn_check_str ('DEERG');
 SELECT dbo.fn_check_str ('DERGH');
 
+----------------------------------------
+
+-- Function to check if characters are sequential. 
+-- Returns true if characters are sequential else returns false
+
+CREATE OR ALTER FUNCTION dbo.fn_sequential_str (@p_str nvarchar(MAX))
+RETURNS BIT
+AS
+BEGIN
+    DECLARE @i INT = 1;
+	DECLARE @len INT = LEN(@p_str);
+    -- WHILE Loop Simulation
+    WHILE @i < @len
+    BEGIN
+        IF ASCII(SUBSTRING(@p_str ,@i + 1, 1)) - ASCII(SUBSTRING(@p_str ,@i ,1)) <> 1  -- IF statement inside a while loop
+		  RETURN 0;
+        SET @i = @i + 1;  -- Increment the counter
+    END
+    RETURN 1;
+END;
+GO
+
+-- Calling the fn_sequential_str function
+SELECT dbo.fn_sequential_str('ABCDE');
+SELECT dbo.fn_sequential_str('ADFRB');
 
