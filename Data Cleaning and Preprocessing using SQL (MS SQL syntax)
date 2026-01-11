@@ -72,3 +72,38 @@ GO
 SELECT dbo.fn_sequential_str('ABCDE');
 SELECT dbo.fn_sequential_str('ADFRB');
 
+
+-- Create view with all the cleaning conditions
+
+CREATE OR ALTER VIEW vw_valid_invalid_pans
+AS
+WITH cte_cleaned_pan AS
+(
+    SELECT DISTINCT
+           UPPER(LTRIM(RTRIM(pan_numbers))) AS pan_numbers
+    FROM [dbo].[PAN Number Validation Dataset]
+    WHERE pan_numbers IS NOT NULL
+      AND LTRIM(RTRIM(pan_numbers)) <> ''
+),
+cte_valid_pan AS
+(
+    SELECT *
+    FROM cte_cleaned_pan
+    WHERE dbo.fn_check_str(pan_numbers) = 0
+      AND dbo.fn_sequential_str(SUBSTRING(pan_numbers, 1, 5)) = 0
+      AND dbo.fn_sequential_str(SUBSTRING(pan_numbers, 6, 4)) = 0
+      AND pan_numbers LIKE '[A-Z][A-Z][A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9][A-Z]'
+)
+SELECT
+    cln.pan_numbers,
+    CASE
+        WHEN vld.pan_numbers IS NULL
+            THEN 'Invalid PAN'
+        ELSE 'Valid PAN'
+    END AS status
+FROM cte_cleaned_pan cln
+LEFT JOIN cte_valid_pan vld
+    ON vld.pan_numbers = cln.pan_numbers;
+GO
+
+
